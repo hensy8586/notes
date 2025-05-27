@@ -68,6 +68,6 @@ nav:
     - data_science/index.md
   - Cloud:
     - cloud/index.md
-  - Tips & Tricks:
+  - Tips and Tricks:
     - tips_tricks/index.md
   - About: about.md
