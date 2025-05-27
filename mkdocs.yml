@@ -55,4 +55,19 @@ markdown_extensions:
 
 nav:
   - Home: index.md
+  - Python:
+    - python/index.md
+  - Data Engineering:
+    - data_engineering/index.md
+    - Databases:
+      - data_engineering/databases/index.md
+      - SQL Server: data_engineering/databases/sql_server.md
+    - Databricks:
+      - data_engineering/databricks/index.md
+  - Data Science:
+    - data_science/index.md
+  - Cloud:
+    - cloud/index.md
+  - Tips & Tricks:
+    - tips_tricks/index.md
   - About: about.md
