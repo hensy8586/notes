@@ -4,7 +4,6 @@ site_url: https://hensy8586.github.io/notes
 theme:
   name: material
   palette:
-
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"
       toggle:
@@ -56,18 +55,18 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Python:
-    - python/index.md
+      - python/index.md
   - Data Engineering:
-    - data_engineering/index.md
-    - Databases:
-      - data_engineering/databases/index.md
-      - SQL Server: data_engineering/databases/sql_server.md
-    - Databricks:
-      - data_engineering/databricks/index.md
+      - data_engineering/index.md
+      - Databases:
+          - data_engineering/databases/index.md
+          - Database Access: data_engineering/databases/database_access.md
+      - Databricks:
+          - data_engineering/databricks/index.md
   - Data Science:
-    - data_science/index.md
+      - data_science/index.md
   - Cloud:
-    - cloud/index.md
+      - cloud/index.md
   - Tips and Tricks:
-    - tips_tricks/index.md
+      - tips_tricks/index.md
   - About: about.md
