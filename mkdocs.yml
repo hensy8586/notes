@@ -45,12 +45,28 @@ theme:
     - navigation.indexes
     - navigation.top
     - toc.follow
+    - content.code.copy
 
 markdown_extensions:
   - toc:
       permalink: true
       title: Table of Contents
       toc_depth: 3
+
+  # Required for fenced code blocks ```lang
+  - pymdownx.superfences
+
+  # Syntax highlighting (Pygments)
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+
+  # Optional but recommended (better inline code / keyboard keys / smart quotes)
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
 
 nav:
   - Home: index.md

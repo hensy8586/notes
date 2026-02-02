@@ -26,6 +26,6 @@ jobs:
       #     path: .cache
       #     restore-keys: |
       #       mkdocs-material-
-      - run: pip install mkdocs-material
+      - run: pip install mkdocs-material pymdown-extensions pygments
       - run: mkdocs build --clean
       - run: mkdocs gh-deploy --force
