@@ -65,6 +65,11 @@ nav:
           - data_engineering/databricks/index.md
   - Data Science:
       - data_science/index.md
+  - AI:
+      - ai/index.md
+      - AI Agents:
+          - ai/index.md
+          - Common Functions: ai/ai_agents/common_functions.md
   - Cloud:
       - cloud/index.md
   - Tips and Tricks:
