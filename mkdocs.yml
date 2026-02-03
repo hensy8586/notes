@@ -48,7 +48,7 @@ theme:
     - content.code.copy
 
   pygments_style: vs
-  pygments_dark_style: monokai
+  pygments_dark_style: dracula
 
 markdown_extensions:
   - toc:

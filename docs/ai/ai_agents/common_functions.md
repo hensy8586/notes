@@ -1,8 +1,37 @@
 # Common Functions for AI Agents
 
-## Basic Setup
+## Basic Setup Functions and Code
 
-Some common functions are the following (source code here: https://colab.research.google.com/drive/1p_Lh_pjdIFMLXRJ1VUZdOGGniy6tWnRo?usp=sharing#scrollTo=Mwe2eeOQB0cC)
+Some common functions are the following (source code [here](https://colab.research.google.com/drive/1p_Lh_pjdIFMLXRJ1VUZdOGGniy6tWnRo?usp=sharing#scrollTo=Mwe2eeOQB0cC)). The basic ideas are summarized here:
+
+- `generate_response` is the main function to call. One can use it independently, but more structurally it's used in this agent framework following GAME (Goal, Action, Model & Environment) components:
+    - The `Agent` class
+        - Receives `Goal`, `AgentLanguage`, `ActionRegistry` and `Environment` classes as configurational arguments.
+        - `run` is the major method. It typically follows the procedures of
+            1. Setting up the task based on user input (via `set_current_task` method)
+            2. Construct the proper prompt based on the goals, actions and current memory (via `construct_prompt` method)
+            3. Receive action/decision from prompt (via `prompt_llm_for_action` method)
+            4. Execute the action in the environment (via `Environment`'s `execute_action` method)
+            5. Update agent's memory (via `update_memory` method)
+            6. Decide if it should terminate (via `should_terminate` method)
+            7. If to terminate, return memory; otherwise, go back to Step 2
+    - The `Goal` class
+        - Receives `priority` (integer), `name` (string) and `description` (string) as arguments.
+    - The `Action` class
+        - Receives `name` (string), `function` (callable function), `description` (string), `terminal` (boolean, whether to terminate after the action) and `parameters` (dict) as arguments.
+        - The `execute` method executes the action function.
+        - Note that we don't explicitly "write out" the action class instances, but rather this is done via `PythonActionRegistry` and the `register_tool` decorator which is applied to each action function.
+    - The `ActionRegistry` and `PythonRegistry` classes
+        - Think the so-called _registry_ as catalog of all actions, each optionally (but preferably) tagged with a "type".
+        - It needs a `tools` global parameter to store all the tools, via the `register_tools` decorator.
+        - The registry, upon specifying the relevant tags, would register each action in the registry so LLM knows to use them.
+    - The `Memory` class
+        - It handles the storage of all conversation information, including `add_memory`, `get_memories`, and `copy_without_system_memories`
+    - The `Environment` class
+        - This is where actions are executed and results are properly formatted.
+    - The `AgentFunctionCallingActionLanguage` class (and potentially other `AgentLanguage` classes in general)
+        - This is to define how the agent responds to which action to take (hence agent language)
+
 
 ```python
 import json
@@ -506,3 +535,84 @@ class Agent:
 
         return memory
 ```
+
+## Example
+
+Here's an actual example on how to use this framework:
+
+```python
+# First, we'll define our tools using decorators
+@register_tool(tags=["file_operations", "read"])
+def read_project_file(name: str) -> str:
+    """Reads and returns the content of a specified project file.
+
+    Opens the file in read mode and returns its entire contents as a string.
+    Raises FileNotFoundError if the file doesn't exist.
+
+    Args:
+        name: The name of the file to read
+
+    Returns:
+        The contents of the file as a string
+    """
+    with open(name, "r") as f:
+        return f.read()
+
+@register_tool(tags=["file_operations", "list"])
+def list_project_files() -> List[str]:
+    """Lists all Python files in the current project directory.
+
+    Scans the current directory and returns a sorted list of all files
+    that end with '.py'.
+
+    Returns:
+        A sorted list of Python filenames
+    """
+    return sorted([file for file in os.listdir(".")
+                    if file.endswith(".py")])
+
+@register_tool(tags=["system"], terminal=True)
+def terminate(message: str) -> str:
+    """Terminates the agent's execution with a final message.
+
+    Args:
+        message: The final message to return before terminating
+
+    Returns:
+        The message with a termination note appended
+    """
+    return f"{message}\nTerminating..."
+
+
+# Define the agent's goals
+goals = [
+    Goal(priority=1,
+            name="Gather Information",
+            description="Read each file in the project in order to build a deep understanding of the project in order to write a README"),
+    Goal(priority=1,
+            name="Terminate",
+            description="Call terminate when done and provide a complete README for the project in the message parameter")
+]
+
+# Create an agent instance with tag-filtered actions
+agent = Agent(
+    goals=goals,
+    agent_language=AgentFunctionCallingActionLanguage(),
+    # The ActionRegistry now automatically loads tools with these tags
+    action_registry=PythonActionRegistry(tags=["file_operations", "system"]),
+    generate_response=generate_response,
+    environment=Environment()
+)
+
+# Run the agent with user input
+user_input = "Write a README for this project."
+final_memory = agent.run(user_input)
+print(final_memory.get_memories())
+```
+
+The example has three tools set up:
+- `read_project_file`: it reads a file given the directory
+- `list_project_files`: it lists all Python files from a given directory, sorted
+- `terminate`: terminate the process
+
+The goal of the agent is set to read all files and write a README.
